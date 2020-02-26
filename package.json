@@ -1,0 +1,11 @@
+{
+  "name": "booking-manager-system",
+  "version": "1.0.0",
+  "description": "It is a simple booking manager system written in nodejs with koajs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
