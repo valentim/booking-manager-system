@@ -1,0 +1,15 @@
+.slide {
+    background-color: darkgrey;
+}
+
+.card-deck {
+    margin-bottom: 30px;
+}
+
+.bg-light-blue {
+    background-color: #e3f2fd !important;
+}
+
+.nav-item a {
+    margin: 0 5px 0 5px;
+}
