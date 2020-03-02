@@ -36,7 +36,7 @@ export class Reservoir {
     }
 
     public async getReservations(restaurantGuid: string, tablesGuid: string): Promise<IReservation[]> {
-        const reservations = await this.reservationRepository.getReservations(restaurantGuid, tablesGuid); 
+        const reservations = await this.reservationRepository.getReservations(restaurantGuid, tablesGuid);
 
         return await Promise.all(reservations.map( async (r: IReservation) => {
             const restaurantAndTable = await this.restaurantRepository.getRestaurantAndTable(
