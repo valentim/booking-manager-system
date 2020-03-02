@@ -11,5 +11,7 @@ RUN npm install
 
 COPY . $SRC_PATH
 
+RUN npm run build
+
 EXPOSE 3002
 EXPOSE 3003

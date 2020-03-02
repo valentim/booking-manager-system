@@ -11,5 +11,7 @@ RUN yarn install
 
 COPY . $SRC_PATH
 
+RUN yarn build
+
 EXPOSE 3000
 EXPOSE 3001
