@@ -11,7 +11,7 @@ This client web has the necessary interfaces to display and manage the restauran
 ![](./examples/reservations.png)
 
 ### Creating restaurants
-![](./examples/creating_restaurants.png)
+![](./examples/creating_restaurant.png)
 
 ### Listing restaurants
 ![](./examples/list_restaurants.png)
