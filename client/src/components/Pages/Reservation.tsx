@@ -1,12 +1,14 @@
 import React, { Component, RefObject } from "react";
+import Row from "react-bootstrap/Row";
+import Container from "react-bootstrap/Container";
+import { Link } from 'react-router-dom';
+import Form from 'react-bootstrap/Form';
 import { BookingApi } from "../../services/booking/BookingApi";
 import { GenericModal } from "../Modal";
 import InputMoment from 'input-moment';
 import moment from 'moment';
+import uuid from 'uuid/v4';
 import './Calendar.css';
-import Row from "react-bootstrap/Row";
-import Container from "react-bootstrap/Container";
-import { Link } from 'react-router-dom';
 
 type ResponseData = {
     reservationCode?: string,
@@ -16,6 +18,7 @@ type ResponseData = {
 
 type ReservationStates = {
     when: moment.Moment,
+    seats: string,
     showModal: boolean,
     response: ResponseData
 };
@@ -38,6 +41,7 @@ export class Reservation extends Component<ReservationProps, ReservationStates> 
         this.state = {
             when: now,
             showModal: false,
+            seats: '1',
             response: {
                 message: '',
                 reservationCode: '',
@@ -70,12 +74,12 @@ export class Reservation extends Component<ReservationProps, ReservationStates> 
             status: 'success'
         }
 
-        const userGuid = '123';
+        const userGuid = uuid();
 
         const when = this.state.when.format('YYYY-MM-DD HH:mm:00');
 
         if (this.props.reservationGuid) {
-            bookingApi.updateReservation(when, userGuid, this.props.restaurantGuid, this.props.tableGuid, this.props.reservationGuid).then(result => {
+            bookingApi.updateReservation(when, userGuid, Number(this.state.seats), this.props.restaurantGuid, this.props.tableGuid, this.props.reservationGuid).then(result => {
                 result.json().then(response => {
                     let newResponse = defaultResponse;
                     newResponse.message = 'Reservation updated with success!';
@@ -95,7 +99,7 @@ export class Reservation extends Component<ReservationProps, ReservationStates> 
                 this.genericModal.current?.openModal();
             });
         } else {
-            bookingApi.createReservation(when, userGuid, this.props.restaurantGuid, this.props.tableGuid).then(result => {
+            bookingApi.createReservation(when, userGuid, Number(this.state.seats), this.props.restaurantGuid, this.props.tableGuid).then(result => {
                 result.json().then(response => {
                     let newResponse = defaultResponse;
                     if (201 !== result.status) {
@@ -120,9 +124,26 @@ export class Reservation extends Component<ReservationProps, ReservationStates> 
     };
     
     private handleSave() {
-        console.log('saved', this.state.when.format('llll'));
-        this.saveReservation();
+        if (this.state.seats) {
+            console.log('saved', this.state.when.format('llll'), this.state.seats);
+            this.saveReservation();
+        }
     };
+
+    public addWaitingQueue() {
+        const bookingApi = new BookingApi('');
+
+        const userGuid = uuid();
+
+        const when = this.state.when.format('YYYY-MM-DD HH:mm:00');
+
+        bookingApi.addWaitingQueue(when, userGuid, Number(this.state.seats), this.props.restaurantGuid, this.props.tableGuid).then(result => {
+            result.json().then(response => {
+                console.log(response);
+            });
+
+        });
+    }
 
     render() {
         return(
@@ -148,16 +169,25 @@ export class Reservation extends Component<ReservationProps, ReservationStates> 
                     }
                 </nav>
                 <Row className="justify-content-md-center">
-                    <GenericModal ref={this.genericModal} message={this.state.response.message} status={this.state.response.status} />
-                    
-                    <InputMoment moment={this.state.when}
-                        onChange={this.handleChange}
-                        onSave={this.handleSave}
-                        minStep={60} // default
-                        hourStep={1} // default
-                        prevMonthIcon="ion-ios-arrow-left" // default
-                        nextMonthIcon="ion-ios-arrow-right" // default
-                    />
+                    <GenericModal onWaitingQueue={this.addWaitingQueue} ref={this.genericModal} message={this.state.response.message} status={this.state.response.status} />
+                    <div className="reservation-form">
+                        <Form.Group controlId="seats">
+                            <Form.Label>Seats</Form.Label>
+                            <Form.Control type="number" value={this.state.seats} onChange={this.handleDataChange} placeholder="How many people" required />
+                        </Form.Group>
+                        <Form.Group controlId="when">
+                            <Form.Label>Date and time</Form.Label>
+                            <Form.Control value={this.state.when.format('llll')} readOnly />                        
+                            <InputMoment moment={this.state.when}
+                                onChange={this.handleChange}
+                                onSave={this.handleSave}
+                                minStep={60} // default
+                                hourStep={1} // default
+                                prevMonthIcon="ion-ios-arrow-left" // default
+                                nextMonthIcon="ion-ios-arrow-right" // default
+                            />
+                        </Form.Group>
+                    </div>
                 </Row>
             </Container>
         );

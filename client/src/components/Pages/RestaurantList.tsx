@@ -35,7 +35,7 @@ export class RestaurantList extends Component<{}, RestaurantListStates> {
         const restaurants = this.state.restaurants;
 
         return(
-            <Table responsive>
+            <Table responsive striped bordered hover>
                 <thead>
                     <tr>
                     <th>Restaurant</th>

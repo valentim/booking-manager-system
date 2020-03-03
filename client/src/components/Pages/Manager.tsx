@@ -37,7 +37,7 @@ export class Manager extends Component<{}, ManagerState> {
                     <Row>
                         <Col sm={2}>
                         <Nav variant="pills" defaultActiveKey="/list-restaurants" className="flex-column">
-                            <Nav.Link as={NavLink} active={this.state.isDefaultActive} to="/list-restaurants" onClick={() => this.activeLink(true)}>Manager restaurants</Nav.Link>
+                            <Nav.Link as={NavLink} active={this.state.isDefaultActive} to="/list-restaurants" onClick={() => this.activeLink(true)}>List Restaurants</Nav.Link>
                             <Nav.Link as={NavLink} to="/add-restaurants" onClick={() => this.activeLink(false)} >Add restaurant</Nav.Link>
                         </Nav>
                         </Col>

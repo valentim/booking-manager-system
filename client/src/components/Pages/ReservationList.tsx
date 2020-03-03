@@ -88,7 +88,7 @@ export class ReservationList extends Component<ReservationListProps, Reservation
                         <li className="breadcrumb-item active">List reservations</li>
                     </ol>
                 </nav>
-                <Table responsive>
+                <Table responsive striped bordered hover>
                     <thead>
                         <tr>
                         <th>Reservation code</th>

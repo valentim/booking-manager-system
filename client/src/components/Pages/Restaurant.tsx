@@ -51,7 +51,7 @@ export class Restaurant extends Component<RestaurantProps, RestaurantStates> {
     }
 
     private generateTimes() {
-        const hours = [1,2,3,4,5,6,7,8,9,10,11];
+        const hours = [1,2,3,4,5,6,7,8,9,10,11,12];
         const convertTime = (hours: number[], a: string): string[] => {
             return hours.map((i: number) => {
                 const hour = i + 0;
@@ -63,7 +63,7 @@ export class Restaurant extends Component<RestaurantProps, RestaurantStates> {
             });
         };
 
-        this.setState({ businessHourData: ['12:00', ...convertTime(hours, 'AM'), ...convertTime(hours, 'PM')] });
+        this.setState({ businessHourData: [...convertTime(hours, 'AM'), ...convertTime(hours, 'PM')] });
     }
 
     private handleDataChange(event: any) {

@@ -50,7 +50,7 @@ export class TableList extends Component<TableListProps, TableListStates> {
                         <li className="breadcrumb-item active">List tables</li>
                     </ol>
                 </nav>
-                <Table responsive>
+                <Table responsive striped bordered hover>
                     <thead>
                         <tr>
                         <th>Table position</th>
