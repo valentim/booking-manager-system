@@ -4,7 +4,8 @@ import Modal from 'react-bootstrap/Modal';
 
 type ModalProps = {
     message: string,
-    status: string
+    status: string,
+    onWaitingQueue?: any
 };
 
 type ModalStates = {
@@ -21,6 +22,7 @@ export class GenericModal extends Component<ModalProps, ModalStates> {
 
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
+        this.addWaitingList = this.addWaitingList.bind(this);
     }
 
     public openModal() {
@@ -29,6 +31,11 @@ export class GenericModal extends Component<ModalProps, ModalStates> {
 
     public closeModal() {
         this.setState({ showModal: false });
+    }
+
+    public addWaitingList() {
+        this.setState({ showModal: false });
+        this.props.onWaitingQueue();
     }
 
     render() {
@@ -40,7 +47,10 @@ export class GenericModal extends Component<ModalProps, ModalStates> {
                 </Modal.Header>
                     <Modal.Body>{this.props.message}</Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={this.closeModal}>Ok</Button>
+                    {this.props.onWaitingQueue && this.props.message !== 'The restaurant is closed in this hour' && this.props.status === 'error' && (
+                        <Button variant="secondary" onClick={this.addWaitingList}>Add waiting list</Button>
+                    )}
+                    <Button variant="secondary" onClick={this.closeModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
         );

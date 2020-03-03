@@ -2,7 +2,7 @@ export class BookingApi {
     private url: string;
 
     constructor(url: string) {
-        this.url = 'http://localhost:3000'; // url;
+        this.url = 'http://localhost:3002'; // url;
     }
 
     public async listRestaurants() {
@@ -36,7 +36,7 @@ export class BookingApi {
         });
     }
 
-    public async createReservation(when: string, user: string, restaurantGuid: string, tableGuid: string) {
+    public async createReservation(when: string, user: string, seats: number, restaurantGuid: string, tableGuid: string) {
         return await fetch(`${this.url}/v1/restaurants/${restaurantGuid}/tables/${tableGuid}/reservations`, {
             method: 'POST',
             headers: {
@@ -45,12 +45,13 @@ export class BookingApi {
             },
             body: JSON.stringify({
                 when,
+                seats,
                 user
             })
         });
     }
 
-    public async updateReservation(when: string, user: string, restaurantGuid: string, tableGuid: string, reservationGuid: string) {
+    public async updateReservation(when: string, user: string, seats: number, restaurantGuid: string, tableGuid: string, reservationGuid: string) {
         return await fetch(`${this.url}/v1/restaurants/${restaurantGuid}/tables/${tableGuid}/reservations/${reservationGuid}`, {
             method: 'PUT',
             headers: {
@@ -59,6 +60,22 @@ export class BookingApi {
             },
             body: JSON.stringify({
                 when,
+                seats,
+                user
+            })
+        });
+    }
+
+    public async addWaitingQueue(when: string, user: string, seats: number, restaurantGuid: string, tableGuid: string) {
+        return await fetch(`${this.url}/v1/restaurants/${restaurantGuid}/tables/${tableGuid}/waiting-queues`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                when,
+                seats,
                 user
             })
         });
