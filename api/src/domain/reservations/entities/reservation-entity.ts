@@ -4,6 +4,7 @@ export interface IReservation extends Document {
     user: string;
     tableGuid: string;
     restaurantGuid: string;
+    seats: number;
     restaurantName?: string;
     tableName?: string;
     canceledAt: Date;
@@ -13,6 +14,7 @@ const ReservationSchema: Schema = new Schema({
     user: { type: String, required: true },
     tableGuid: { type: String, required: true },
     restaurantGuid: { type: String, required: true },
+    seats: {type: Number, required: true },
     when: { type: Date, required: true, unique: true },
     canceledAt: { type: Date },
 });

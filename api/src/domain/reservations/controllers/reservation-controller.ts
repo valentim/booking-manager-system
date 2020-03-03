@@ -28,6 +28,26 @@ export class ReservationController {
         await next();
     }
 
+    public async queue(context: Context, next: Next) {
+        const reservation = context.request.body as IReservation;
+
+        reservation.restaurantGuid = context.params.restaurantGuid;
+        reservation.tableGuid = context.params.tableGuid;
+
+        const reservationRepository = new ReservationRepository();
+        const restaurantRepository = new RestaurantRepository();
+        const reservoir = new Reservoir(reservationRepository, restaurantRepository);
+
+        try {
+            const newReservation = await reservoir.putInWaiting(reservation, context.sqsProducer);
+            ReservationResponses.getSuccessResponse(context, newReservation, 201);
+        } catch (err) {
+            throw new RegistrationError('registration failed', new ReservationCustomErrors(err));
+        }
+
+        await next();
+    }
+
     public async update(context: Context, next: Next) {
         const reservation = context.request.body as IReservation;
         const reservationGuid = context.params.reservationGuid;
@@ -56,7 +76,7 @@ export class ReservationController {
         const reservoir = new Reservoir(reservationRepository, restaurantRepository);
 
         try {
-            const newReservation = await reservoir.cancelReservation(reservationGuid);
+            const newReservation = await reservoir.cancelReservation(reservationGuid, context.sqsConsumer);
             ReservationResponses.getSuccessResponse(context, newReservation, 200);
         } catch (err) {
             throw new RegistrationError('registration failed', new ReservationCustomErrors(err));

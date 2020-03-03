@@ -33,5 +33,6 @@ const reservationRange = Joi.extend((joi: any) => ({
 
 export const createReservation: Joi.SchemaMap = {
     user: Joi.string().required(),
+    seats: Joi.number().min(1),
     when: reservationRange.date().period().required(),
 };
