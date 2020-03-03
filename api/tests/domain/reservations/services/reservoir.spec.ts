@@ -17,8 +17,12 @@ describe('Test Reservoir service', () => {
 
     before(() => {
         sandbox = sinon.createSandbox();
+    });
+
+    beforeEach(() => {
         reservation = {
             user: 'asd',
+            seats: 9,
             restaurantGuid: 'asd',
             tableGuid: 'asd',
             when: '2020-12-01 10:00:00'
@@ -30,7 +34,12 @@ describe('Test Reservoir service', () => {
     it('Should make a reservation', async () => {
         const fakeRestaurant = {
             closesAt: '10:00 PM',
-            opensAt: '09:00 AM'
+            opensAt: '09:00 AM',
+            tables: [
+                {
+                    maxSeats: 9
+                }
+            ]
         };
 
         const reservationSpy = sandbox.spy().withArgs(reservation);
@@ -46,7 +55,12 @@ describe('Test Reservoir service', () => {
     it('Should throw an exception when the reservation is out of the period that the restaurant is open', async () => {
         const fakeRestaurant = {
             closesAt: '10:00 PM',
-            opensAt: '10:01 AM'
+            opensAt: '10:01 AM',
+            tables: [
+                {
+                    maxSeats: 9
+                }
+            ]
         };
 
         sandbox.replace(restaurantRepository, 'getRestaurantAndTable', sandbox['fake'].resolves((fakeRestaurant as IRestaurant)));
@@ -56,6 +70,30 @@ describe('Test Reservoir service', () => {
             await reservoir.makeReservation(reservation);
         } catch (err) {
             chai.expect(err).to.be.eql({ code: 90001 });
+        }
+
+    });
+
+    it('Should throw an exception when the number of available seats sold out', async () => {
+        const fakeRestaurant = {
+            closesAt: '10:01 PM',
+            opensAt: '09:00 AM',
+            tables: [
+                {
+                    maxSeats: 9
+                }
+            ]
+        };
+
+        reservation.seats =  10;
+
+        sandbox.replace(restaurantRepository, 'getRestaurantAndTable', sandbox['fake'].resolves((fakeRestaurant as IRestaurant)));
+        sandbox.replace(reservationRepository, 'save', sandbox.spy());
+
+        try {
+            await reservoir.makeReservation(reservation);
+        } catch (err) {
+            chai.expect(err).to.be.eql({ code: 90003 });
         }
 
     });
