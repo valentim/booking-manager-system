@@ -12,7 +12,7 @@ import { Reservation } from './components/Pages/Reservation';
 const App: React.FC = () => {
   return (
     <BrowserRouter>
-        <Navbar className="bg-light-blue" expand="lg">
+        <Navbar className="bg-light-blue" sticky="top" expand="lg">
             <Navbar.Brand href="#restaurants">Menu</Navbar.Brand>
             <Nav fill defaultActiveKey="/">
                 <Nav.Item>
