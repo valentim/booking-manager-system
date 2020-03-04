@@ -12,6 +12,8 @@ import { ReservationController } from './domain/reservations/controllers/reserva
 import { Connection } from './infrastructure/queue/sqs/connection';
 import { Producer } from './infrastructure/queue/sqs/producer';
 import { Consumer } from './infrastructure/queue/sqs/consumer';
+import { settings } from './config/settings';
+
 
 const app = new Koa();
 const restaurantController = new RestaurantController();
@@ -19,17 +21,11 @@ const tableController = new TableController();
 const reservationController = new ReservationController();
 const nosql = new MongoDB();
 const router = new Router({ prefix: '/v1' });
-const sqsClient = new Connection(
-    {
-        'accessKeyId': 'AKIAIOEMHHIOA2LBHBDA',
-        'secretAccessKey': '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',
-        'region': 'us-east-1'
-    }
-);
+const sqsClient = new Connection(settings.aws);
 const sqsProducer = new Producer(sqsClient);
 const sqsConsumer = new Consumer(sqsClient);
 
-nosql.connect('mongodb://root:1234@mongodb:27017/booking?authSource=admin');
+nosql.connect(settings.mongodb.resource);
 
 router.post(
     '/restaurants',
@@ -47,8 +43,21 @@ router.get(
 router.post(
     '/restaurants/:restaurantGuid/tables',
     bodyParser(),
-    middleware.validate({ params: restaurantValidations.restaurantGuid }),
+    middleware.validate({
+        params: { ...restaurantValidations.restaurantGuid },
+        request: { body: restaurantValidations.addTables }
+    }),
     tableController.create
+);
+
+router.put(
+    '/restaurants/:restaurantGuid/tables/:tableGuid',
+    bodyParser(),
+    middleware.validate({
+        params: { ...restaurantValidations.restaurantGuid, ...restaurantValidations.tableGuid },
+        request: { body: restaurantValidations.addTables }
+    }),
+    tableController.update
 );
 
 router.get(
@@ -75,7 +84,17 @@ router.post(
         params: { ...restaurantValidations.restaurantGuid, ...restaurantValidations.tableGuid },
         request: { body: reservationValidations.createReservation }
     }),
-    reservationController.queue
+    reservationController.tableQueue
+);
+
+router.post(
+    '/restaurants/:restaurantGuid/waiting-queues',
+    bodyParser(),
+    middleware.validate({
+        params: { ...restaurantValidations.restaurantGuid },
+        request: { body: reservationValidations.createReservation }
+    }),
+    reservationController.restaurantQueue
 );
 
 router.put(
@@ -115,6 +134,18 @@ router.get(
         }
     }),
     reservationController.showReservations
+);
+
+router.get(
+    '/restaurants/:restaurantGuid/tables/:tableGuid/reservations/:reservationGuid',
+    middleware.validate({
+        params: {
+            ...validations.restaurantGuid,
+            ...validations.tableGuid,
+            ...validations.reservationGuid
+        }
+    }),
+    reservationController.getReservation
 );
 
 router.get(
