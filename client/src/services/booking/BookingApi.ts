@@ -1,8 +1,8 @@
 export class BookingApi {
     private url: string;
 
-    constructor(url: string) {
-        this.url = 'http://localhost:3002'; // url;
+    constructor() {
+        this.url = process.env.API_URL || 'http://localhost:3002';
     }
 
     public async listRestaurants() {
@@ -19,6 +19,10 @@ export class BookingApi {
 
     public async listReservations(restaurantsGuid: string, tablesGuid: string) {
         return await fetch(`${this.url}/v1/restaurants/${restaurantsGuid}/tables/${tablesGuid}/reservations`);
+    }
+
+    public async getReservation(restaurantsGuid: string, tablesGuid: string, reservationGuid: string) {
+        return await fetch(`${this.url}/v1/restaurants/${restaurantsGuid}/tables/${tablesGuid}/reservations/${reservationGuid}`);
     }
 
     public async createRestaurant(name: string, open: string, close: string) {
@@ -66,7 +70,22 @@ export class BookingApi {
         });
     }
 
-    public async addWaitingQueue(when: string, user: string, seats: number, restaurantGuid: string, tableGuid: string) {
+    public async addRestaurantWaitingQueue(when: string, user: string, seats: number, restaurantGuid: string) {
+        return await fetch(`${this.url}/v1/restaurants/${restaurantGuid}/waiting-queues`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                when,
+                seats,
+                user
+            })
+        });
+    }
+
+    public async addTableWaitingQueue(when: string, user: string, seats: number, restaurantGuid: string, tableGuid: string) {
         return await fetch(`${this.url}/v1/restaurants/${restaurantGuid}/tables/${tableGuid}/waiting-queues`, {
             method: 'POST',
             headers: {
