@@ -6,7 +6,7 @@
     padding: 20px 0;
     margin: 5px 0 !important;
     background-color: #f7f7f7;
-    justify-content: space-between;
+    justify-content: left;
 }
 
 .badge-restaurant {
@@ -39,4 +39,8 @@
 
 .card-header {
     background-color: #e3f2fd !important;
+}
+
+.actions {
+    width: 185px
 }
