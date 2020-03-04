@@ -1,8 +1,20 @@
 import RestaurantEntity, { IRestaurant } from '../entities/restaurant-entity';
 import { ITable } from '../entities/table-entity';
+import moment from 'moment';
 
 export class RestaurantRepository {
     public async save(newRestaurant: IRestaurant): Promise<IRestaurant> {
+        const open = moment(newRestaurant.opensAt, 'HH:mm A');
+        const close = moment(newRestaurant.closesAt, 'HH:mm A');
+
+        if (newRestaurant.opensAt == newRestaurant.closesAt) {
+            throw { code: 90001 };
+        }
+
+        if (open > close) {
+            throw { code: 90002 };
+        }
+
         return await RestaurantEntity.create(newRestaurant);
     }
 
@@ -12,6 +24,23 @@ export class RestaurantRepository {
         );
 
         return restaurant;
+    }
+
+    public async updateTable(table: ITable, tableGuid: string): Promise<ITable> {
+        const restaurant = await RestaurantEntity.findOneAndUpdate(
+            { 'tables._id':  tableGuid},
+            {
+                '$set': {
+                    'tables.$.maxSeats': table.maxSeats,
+                    'tables.$.positionName': table.positionName
+                }
+            },
+            {
+                new: true
+            }
+        );
+
+        return restaurant.tables[0];
     }
 
     public async getTables(restaurantGuid: string): Promise<ITable[]> {
@@ -38,7 +67,7 @@ export class RestaurantRepository {
         }
 
         if (restaurant.tables.find((t: ITable) => t.positionName === newTable.positionName)) {
-            throw { code: 11000 };
+            throw { code: 11001 };
         }
 
         restaurant.tables.push(newTable);

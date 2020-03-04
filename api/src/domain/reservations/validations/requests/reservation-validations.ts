@@ -1,4 +1,5 @@
 import * as Joi from 'joi';
+import moment = require('moment-timezone');
 
 const reservationRange = Joi.extend((joi: any) => ({
     base: Joi.date().iso(),
@@ -33,5 +34,6 @@ const reservationRange = Joi.extend((joi: any) => ({
 
 export const createReservation: Joi.SchemaMap = {
     user: Joi.string().required(),
-    when: reservationRange.date().period().required(),
+    seats: Joi.number().min(1),
+    when: reservationRange.date().period().min('now').required(),
 };

@@ -1,4 +1,4 @@
-import Koa from 'koa';
+import Koa, { Context } from 'koa';
 import { RestaurantController, TableController } from './domain/restaurants/controllers';
 import { MongoDB } from './infrastructure/databases/nosql/mongodb';
 import Router from 'koa-router';
@@ -9,6 +9,10 @@ import * as restaurantValidations from './domain/restaurants/validations/request
 import * as reservationValidations from './domain/reservations/validations/requests/reservation-validations';
 import * as validations from './infrastructure/validations/requests/guid-validations';
 import { ReservationController } from './domain/reservations/controllers/reservation-controller';
+import { Connection } from './infrastructure/queue/sqs/connection';
+import { Producer } from './infrastructure/queue/sqs/producer';
+import { Consumer } from './infrastructure/queue/sqs/consumer';
+import { settings } from './config/settings';
 
 
 const app = new Koa();
@@ -17,8 +21,11 @@ const tableController = new TableController();
 const reservationController = new ReservationController();
 const nosql = new MongoDB();
 const router = new Router({ prefix: '/v1' });
+const sqsClient = new Connection(settings.aws);
+const sqsProducer = new Producer(sqsClient);
+const sqsConsumer = new Consumer(sqsClient);
 
-nosql.connect('mongodb://root:1234@127.0.0.1:27017/booking?authSource=admin');
+nosql.connect(settings.mongodb.resource);
 
 router.post(
     '/restaurants',
@@ -36,8 +43,21 @@ router.get(
 router.post(
     '/restaurants/:restaurantGuid/tables',
     bodyParser(),
-    middleware.validate({ params: restaurantValidations.restaurantGuid }),
+    middleware.validate({
+        params: { ...restaurantValidations.restaurantGuid },
+        request: { body: restaurantValidations.addTables }
+    }),
     tableController.create
+);
+
+router.put(
+    '/restaurants/:restaurantGuid/tables/:tableGuid',
+    bodyParser(),
+    middleware.validate({
+        params: { ...restaurantValidations.restaurantGuid, ...restaurantValidations.tableGuid },
+        request: { body: restaurantValidations.addTables }
+    }),
+    tableController.update
 );
 
 router.get(
@@ -55,6 +75,26 @@ router.post(
         request: { body: reservationValidations.createReservation }
     }),
     reservationController.create
+);
+
+router.post(
+    '/restaurants/:restaurantGuid/tables/:tableGuid/waiting-queues',
+    bodyParser(),
+    middleware.validate({
+        params: { ...restaurantValidations.restaurantGuid, ...restaurantValidations.tableGuid },
+        request: { body: reservationValidations.createReservation }
+    }),
+    reservationController.tableQueue
+);
+
+router.post(
+    '/restaurants/:restaurantGuid/waiting-queues',
+    bodyParser(),
+    middleware.validate({
+        params: { ...restaurantValidations.restaurantGuid },
+        request: { body: reservationValidations.createReservation }
+    }),
+    reservationController.restaurantQueue
 );
 
 router.put(
@@ -97,6 +137,18 @@ router.get(
 );
 
 router.get(
+    '/restaurants/:restaurantGuid/tables/:tableGuid/reservations/:reservationGuid',
+    middleware.validate({
+        params: {
+            ...validations.restaurantGuid,
+            ...validations.tableGuid,
+            ...validations.reservationGuid
+        }
+    }),
+    reservationController.getReservation
+);
+
+router.get(
     '/restaurants/:restaurantGuid/tables/:tableGuid',
     bodyParser(),
     middleware.validate({
@@ -108,7 +160,22 @@ router.get(
     restaurantController.showTable
 );
 
+router.get(
+    '/health',
+    ((ctx: Context) => {
+        ctx.body = {
+            status: 'ok'
+        };
+
+        ctx.status = 200;
+    })
+);
+
+app.context.sqsClient = sqsClient;
+app.context.sqsProducer = sqsProducer;
+app.context.sqsConsumer = sqsConsumer;
+
 app.use(cors.default());
 app.use(middleware.errorHandler());
 app.use(router.routes());
-app.listen(3000);
+app.listen(3002);

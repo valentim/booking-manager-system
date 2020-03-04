@@ -6,7 +6,7 @@ export interface ITable extends Document {
 }
 
 export const TableSchema: Schema = new Schema({
-    positionName: { type: String, required: true, unique: true, sparse: true },
+    positionName: { type: String, required: true },
     maxSeats: { type: Number, required: true },
 });
 

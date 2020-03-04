@@ -5,14 +5,16 @@ export class ReservationResponses {
     public static getSuccessResponse(ctx: Context, reservation: IReservation, httpStatusCode: number) {
         const response = {
             status: 'success',
-            reservation_code: reservation._id
+            reservationCode: reservation._id,
+            when: reservation.when,
+            seats: reservation.seats
         };
 
         ctx.body = response;
         ctx.status = httpStatusCode;
     }
 
-    public static getReservationResponse(ctx: Context, reservations: IReservation[]) {
+    public static getReservationsResponse(ctx: Context, reservations: IReservation[]) {
         const response = {
             status: 'success',
             data: reservations.map((r: IReservation) => {

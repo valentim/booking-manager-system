@@ -10,7 +10,8 @@ type TableListStates = {
 }
 
 type TableListProps = {
-    restaurantGuid: string
+    restaurantGuid: string,
+    bookingApi: BookingApi
 };
 
 export class TableList extends Component<TableListProps, TableListStates> {
@@ -28,8 +29,7 @@ export class TableList extends Component<TableListProps, TableListStates> {
     }
 
     public getTables() {
-        const bookingApi = new BookingApi('');
-        bookingApi.listTables(this.props.restaurantGuid).then(response => {
+        this.props.bookingApi.listTables(this.props.restaurantGuid).then(response => {
             response.json().then(data => {
                 this.setState({ tables: data.data });
             });
@@ -38,6 +38,12 @@ export class TableList extends Component<TableListProps, TableListStates> {
 
     render() {
         const tables = this.state.tables;
+
+        if (tables.length < 1) {
+            return (
+                <h2>There is no tables registered for this restaurant yet</h2>
+            )
+        }
 
         return(
             <Container>
@@ -50,12 +56,11 @@ export class TableList extends Component<TableListProps, TableListStates> {
                         <li className="breadcrumb-item active">List tables</li>
                     </ol>
                 </nav>
-                <Table responsive>
+                <Table responsive striped bordered hover>
                     <thead>
                         <tr>
                         <th>Table position</th>
                         <th>Max seats</th>
-                        <th>Availability</th>
                         <th>Actions</th>
                         </tr>
                     </thead>
@@ -64,7 +69,6 @@ export class TableList extends Component<TableListProps, TableListStates> {
                             <tr key={table.guid}>
                                 <td>{table.positionName}</td>
                                 <td>{table.maxSeats}</td>
-                                <td>-</td>
                                 <td>
                                     <Nav>
                                         <Nav.Item>

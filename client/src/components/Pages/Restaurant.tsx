@@ -15,11 +15,13 @@ type RestaurantStates = {
     name: string,
     businessHourData: string[],
     showModal: boolean,
+    redirect: string,
     response: ResponseData
 };
 
 type RestaurantProps = {
-    restaurantGuid: string
+    restaurantGuid?: string,
+    bookingApi: BookingApi
 };
 
 export class Restaurant extends Component<RestaurantProps, RestaurantStates> {
@@ -33,6 +35,7 @@ export class Restaurant extends Component<RestaurantProps, RestaurantStates> {
             close: '',
             name: '',
             businessHourData: [],
+            redirect: '/list-restaurants',
             showModal: false,
             response: {
                 message: '',
@@ -55,6 +58,7 @@ export class Restaurant extends Component<RestaurantProps, RestaurantStates> {
         const convertTime = (hours: number[], a: string): string[] => {
             return hours.map((i: number) => {
                 const hour = i + 0;
+
                 if (hour.toString().length > 1) {
                     return `${hour}:00 ${a}`;
                 }
@@ -63,7 +67,7 @@ export class Restaurant extends Component<RestaurantProps, RestaurantStates> {
             });
         };
 
-        this.setState({ businessHourData: ['12:00', ...convertTime(hours, 'AM'), ...convertTime(hours, 'PM')] });
+        this.setState({ businessHourData: ['00:00 AM', ...convertTime(hours, 'AM'), '12:00 PM', ...convertTime(hours, 'PM'), '11:59 PM'] });
     }
 
     private handleDataChange(event: any) {
@@ -77,13 +81,12 @@ export class Restaurant extends Component<RestaurantProps, RestaurantStates> {
     }
 
     private createRestaurant(event: any) {
-        const bookingApi = new BookingApi('');
         const response = {
             message: 'Restaurant registered with success',
             status: 'success'
         }
 
-        bookingApi.createRestaurant(this.state.name, this.state.open, this.state.close).then(result => {
+        this.props.bookingApi.createRestaurant(this.state.name, this.state.open, this.state.close).then(result => {
             result.json().then(data => {
 
                 const allowedStatus = [200, 201];
@@ -111,7 +114,7 @@ export class Restaurant extends Component<RestaurantProps, RestaurantStates> {
 
         return(
             <Form onSubmit={this.createRestaurant}>
-                <GenericModal ref={this.genericModal} message={this.state.response.message} status={this.state.response.status} />
+                <GenericModal ref={this.genericModal} redirect={this.state.redirect} message={this.state.response.message} status={this.state.response.status} />
                 <Form.Group controlId="name">
                     <Form.Label>Restaurant name</Form.Label>
                     <Form.Control value={this.state.name} onChange={this.handleDataChange} placeholder="Restaurant name" required />

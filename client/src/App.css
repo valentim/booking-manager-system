@@ -3,7 +3,26 @@
 }
 
 .card-deck {
-    margin-bottom: 30px;
+    padding: 20px 0;
+    margin: 5px 0 !important;
+    background-color: #f7f7f7;
+    justify-content: left;
+}
+
+.badge-restaurant {
+    background-color: #508d9b !important;
+}
+
+.card-deck .card {
+    max-height: 446px;
+}
+
+.text-muted {
+    font-size: 70% !important;
+}
+
+.reservation-form {
+    width: 330px;
 }
 
 .bg-light-blue {
@@ -12,4 +31,21 @@
 
 .nav-item a {
     margin: 0 5px 0 5px;
+}
+
+.btn-block.nav-item a {
+    margin: 0;
+}
+
+.card-header {
+    background-color: #e3f2fd !important;
+}
+
+.actions {
+    width: 185px
+}
+
+.wrapper-card-deck {
+    width: 956px;
+    margin: 0 auto;
 }

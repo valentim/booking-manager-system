@@ -2,13 +2,17 @@ import React, { Component } from "react";
 import Card from 'react-bootstrap/Card';
 import { Link } from 'react-router-dom';
 import Nav from "react-bootstrap/Nav";
+import Badge from 'react-bootstrap/Badge';
 
 type TableCardProps = {
     restaurantName: string,
     restaurantGuid: string,
     maxSeats: number,
     positionName: string,
-    guid: string
+    guid: string,
+    open: string,
+    close: string,
+    available?: boolean
 };
 
 export class TableCard extends Component<TableCardProps, {}> {
@@ -28,19 +32,36 @@ export class TableCard extends Component<TableCardProps, {}> {
         const image = randomImages[randomNumber] || randomImages.default;
         return(
             <Card style={{ width: '18rem' }}>
-                <Card.Header>{this.props.restaurantName}</Card.Header>
+                <Card.Header>{this.props.restaurantName} <Badge variant="primary" className="badge-restaurant">restaurant</Badge></Card.Header>
                 <Card.Img variant="top" src={image} />
-                <Card.Body>
-                    <Card.Title>{this.props.positionName}</Card.Title>
-                    <Card.Text>
-                        Max seats: {this.props.maxSeats}
-                    </Card.Text>
-                    <Nav>
-                        <Nav.Item>
-                            <Link className="btn btn-outline-primary" to={`/restaurants/${this.props.restaurantGuid}/tables/${this.props.guid}/add-reservation`}>Reserve</Link>
-                        </Nav.Item>
-                    </Nav>
-                </Card.Body>
+
+                {this.props.available ?
+                    <Card.Body>
+                        <Card.Title>{this.props.positionName} <Badge variant="success">table</Badge></Card.Title>
+                        <Card.Text>
+                            Max seats: {this.props.maxSeats}
+                        </Card.Text>
+                        <Nav>
+                            <Nav.Item className="btn-block">
+                                <Link className="btn btn-outline-primary btn-block" to={`/restaurants/${this.props.restaurantGuid}/tables/${this.props.guid}/add-reservation`}>Reserve</Link>
+                            </Nav.Item>
+                        </Nav>
+                    </Card.Body>
+                :
+                    <Card.Body>
+                        <Card.Title><Badge variant="warning" className="d-flex justify-content-center">unavailable</Badge></Card.Title>
+                        <Nav>
+                            <Nav.Item className="btn-block">
+                                <Link className="btn btn-outline-primary btn-block" to={`/restaurants/${this.props.restaurantGuid}/tables/${this.props.guid}/waiting-queue`}>Waiting queue</Link>
+                            </Nav.Item>
+                        </Nav>
+                    </Card.Body>
+                }
+                <Card.Footer>
+                    <small className="text-muted">
+                        <strong>Open at:</strong> {this.props.open} - <strong>Close at:</strong> {this.props.close}
+                    </small>
+                </Card.Footer>
             </Card>
         );
     }

@@ -16,21 +16,16 @@ services:
     depends_on: 
       - mongodb
     healthcheck:
-      test: curl --fail -s http://0.0.0.0:3002/ || exit 1
+      test: curl --fail -s http://0.0.0.0:3002/v1/health || exit 1
       interval: 20s
       timeout: 5s
       retries: 3
 
   client:
     build: ./client
-    command: yarn start
+    command: dockerize -wait http://api:3002/v1/health -timeout 900s node server.js
     env_file: ./infra/envs/client.env
     ports:
       - 3000:3000
     depends_on:
       - api
-    healthcheck:
-      test: curl --fail -s http://0.0.0.0:3000/ || exit 1
-      interval: 20s
-      timeout: 5s
-      retries: 3

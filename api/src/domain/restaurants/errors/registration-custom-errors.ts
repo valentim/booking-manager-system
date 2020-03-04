@@ -11,7 +11,10 @@ export class RegistrationCustomErrors implements ICustomError {
 
         const messages = {
             11000: { message: 'This restaurant already exists', code: 409 },
+            11001: { message: 'This table already exists', code: 409 },
             90000: { message: 'This restaurant does not exist', code: 404 },
+            90001: { message: 'Close and open time must be different', code: 400 },
+            90002: { message: 'Open date can not be bigger than Close date', code: 400 },
             default: { message: 'There is an exceptional error. Please, contact the administrator and inform the code', code: 500 }
         };
 

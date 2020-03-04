@@ -14,6 +14,8 @@ export class ReservationCustomErrors implements ICustomError {
             90000: { message: 'This table does not exist', code: 404 },
             90001: { message: 'The restaurant is closed in this hour', code: 412 },
             90002: { message: 'This reservation does not exist', code: 404 },
+            90003: { message: 'There is no seats available for this table', code: 412 },
+            90004: { message: 'This restaurant does not exist', code: 404 },
             default: { message: 'There is an exceptional error. Please, contact the administrator and inform the code', code: 500 }
         };
 

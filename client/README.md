@@ -13,6 +13,9 @@ This client web has the necessary interfaces to display and manage the restauran
 ### Creating restaurants
 ![](./examples/creating_restaurant.png)
 
+### Creating tables
+![](./examples/creating_table.png)
+
 ### Listing restaurants
 ![](./examples/list_restaurants.png)
 
@@ -33,7 +36,7 @@ The project is dockerized, so to install it, follow the procedures below:
 1 - Run mongodb container:  
 `$ docker run -d -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=1234 -p 27027:27027` 
 2 - Build and run api container:  
-At the root of the project execute - `$ docker build -t api .` and after `$ docker run --name api -e MONGO_DB_PATH=mongodb://root:1234@localhost:27017/booking?authSource=admin -p 3002:3002 -d api`  
+At the root of the project execute - `$ docker build -t api .` and after `$ docker run --name api -e MONGODB_RESOURCE=mongodb://root:1234@localhost:27017/booking?authSource=admin -p 3002:3002 -d api`  
 3 - Start api service:  
 `$ docker exec -it api bash -c 'npm run start'`  
 4 - Build and run web container:  
@@ -55,6 +58,7 @@ In short:
  - Dockerfile
  - tsconfig.json
  - package.json
+ - server.js
  - README.md
  - LICENSE
 
