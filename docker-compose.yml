@@ -9,10 +9,8 @@ services:
 
   api:
     build: ./api
-    command: npm run debug
+    command: npm run start
     env_file: ./infra/envs/api.env
-    volumes:
-      - ./api:/api
     ports:
       - 3002:3002
     depends_on: 
@@ -25,10 +23,8 @@ services:
 
   client:
     build: ./client
-    command: dockerize -wait http://api:3002/v1/health -timeout 900s yarn start
+    command: dockerize -wait http://api:3002/v1/health -timeout 900s node server.js
     env_file: ./infra/envs/client.env
-    volumes:
-      - ./client:/client
     ports:
       - 3000:3000
     depends_on:
