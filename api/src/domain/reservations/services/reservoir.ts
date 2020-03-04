@@ -6,7 +6,7 @@ import { IRestaurant } from '../../restaurants/entities/restaurant-entity';
 import { ITable } from '../../restaurants/entities/table-entity';
 import { Producer } from '../../../infrastructure/queue/sqs/producer';
 import { Consumer } from '../../../infrastructure/queue/sqs/consumer';
-import AWS, { SQS } from 'aws-sdk';
+import { ISQSQueueName } from '../entities/sqs-queue-name-entity';
 
 
 export class Reservoir {
@@ -40,11 +40,8 @@ export class Reservoir {
     public async cancelReservation(reservationGuid: string, queueConsumer: Consumer) {
         await this.checkCurrentReservation(reservationGuid);
 
-        const reservation = {
-            canceledAt: new Date()
-        } as IReservation;
+        const updatedReservation = await this.reservationRepository.delete(reservationGuid);
 
-        const updatedReservation = await this.reservationRepository.update(reservation, reservationGuid);
         const reservationInQueue = await queueConsumer.consume({
             queueName: `${moment(updatedReservation.when).unix()}${updatedReservation.tableGuid}.fifo`
         }).catch(err => {
@@ -56,11 +53,16 @@ export class Reservoir {
         if (reservationInQueue) {
             const newReservation = reservationInQueue as IReservation;
             // tslint:disable-next-line: no-null-keyword
-            newReservation.canceledAt = null;
-            this.reservationRepository.update(newReservation as IReservation, reservationGuid);
+            this.reservationRepository.save(newReservation as IReservation);
         }
 
         return updatedReservation;
+    }
+
+    public async getReservation(reservationGuid: string): Promise<IReservation> {
+        const reservation = await this.reservationRepository.getReservation(reservationGuid);
+
+        return reservation;
     }
 
     public async getReservations(restaurantGuid: string, tablesGuid: string): Promise<IReservation[]> {
@@ -84,7 +86,7 @@ export class Reservoir {
         }));
     }
 
-    public async putInWaiting(reservation: IReservation, queueProducer: Producer) {
+    public async putInWaitingForTable(reservation: IReservation, queueProducer: Producer) {
         const [restaurant, ] = await this.getRestaurant(reservation);
 
         await this.checkRestaurantWorkPeriod(reservation, restaurant);
@@ -95,6 +97,45 @@ export class Reservoir {
         });
 
         return reservation;
+    }
+
+    public async putInWaitingForRestaurant(reservation: IReservation, queueProducer: Producer) {
+        const queueName = `${moment(reservation.when).unix()}${reservation.restaurantGuid}.fifo`;
+        const queueNameEntity = {
+            restaurantGuid: reservation.restaurantGuid,
+            name: queueName,
+            when: reservation.when
+        } as ISQSQueueName;
+
+        this.reservationRepository.saveQueueNames(queueNameEntity);
+
+        queueProducer.send({
+            queueName: queueName,
+            message: reservation
+        });
+
+        return reservation;
+    }
+
+    public async reserveFromRestaurantQueue(restaurantGuid: string, tableGuid: string, consumer: Consumer) {
+        const queueNames = await this.reservationRepository.getQueueNames(restaurantGuid);
+
+        for (const queueName of queueNames) {
+            const reservationInQueue = await consumer.consume({
+                queueName: queueName.name
+            }).catch(err => {
+                console.log(err);
+
+                return undefined;
+            });
+
+            if (reservationInQueue) {
+                const newReservation = reservationInQueue as IReservation;
+                newReservation.tableGuid = tableGuid;
+                // tslint:disable-next-line: no-null-keyword
+                this.reservationRepository.save(newReservation as IReservation);
+            }
+        }
     }
 
     private async checkCurrentReservation(reservationGuid: string) {
@@ -108,11 +149,17 @@ export class Reservoir {
     private async checkRestaurantWorkPeriod(reservation: IReservation, restaurant: IRestaurant) {
 
         const date = moment(reservation.when, 'YYYY-MM-DD hh:mm');
-        const reservationDate = date.format('YYYY-MM-DD');
-        const opensAt = moment(`${reservationDate} ${restaurant.opensAt}`, 'YYYY-MM-DD hh:mm A');
-        const closesAt = moment(`${reservationDate} ${restaurant.closesAt}`, 'YYYY-MM-DD hh:mm A');
 
-        if (!date.isBetween(opensAt, closesAt)) {
+        const reservationDate = date.format('YYYY-MM-DD');
+        const opensAt = moment(`${reservationDate} ${restaurant.opensAt}`, 'YYYY-MM-DD HH:mm A');
+        const closesAt = moment(`${reservationDate} ${restaurant.closesAt}`, 'YYYY-MM-DD HH:mm A');
+
+        if (closesAt.format('HH:mm A') === '00:00 AM') {
+            closesAt.set({ hours: 24 });
+        }
+
+        console.log(closesAt.format('HH:mm A'), opensAt.format('YYYY-MM-DD HH:mm'), closesAt.format('YYYY-MM-DD HH:mm'), date.format('YYYY-MM-DD HH:mm'));
+        if (!date.isBetween(opensAt, closesAt, 'minutes', '[]')) {
             throw { code: 90001 };
         }
     }
