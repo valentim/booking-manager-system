@@ -7,12 +7,12 @@ export class Consumer {
         this.connection = connection;
     }
 
-    public async consume(payload: any) {
+    public async consume(payload: any, quantity: number = 1) {
         const queue = `${this.connection.QueueUrl}${payload.queueName}`;
 
         return new Promise((resolve, reject) => {
             this.connection.Client.receiveMessage({
-                MaxNumberOfMessages: 1,
+                MaxNumberOfMessages: quantity,
                 QueueUrl: queue
             }, (err, data) => {
                     if (err) {
