@@ -25,7 +25,7 @@ services:
 
   client:
     build: ./client
-    command: dockerize -wait web://api:9092 yarn start
+    command: dockerize -wait http://api:3002/v1/health -timeout 900s yarn start
     env_file: ./infra/envs/client.env
     volumes:
       - ./client:/client
