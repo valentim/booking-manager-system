@@ -49,7 +49,7 @@ export class TableDeck extends Component<TableDeckProps, TableDeckState> {
         return(
             <Container>
                 {restaurants.map((restaurant: any) =>
-                    <div key={restaurant.guid}>
+                    <div key={restaurant.guid} className="wrapper-card-deck">
                         <h2><Badge variant="info" className="d-flex justify-content-center badge-restaurant">{restaurant.name}</Badge></h2>
                         <CardDeck className="d-flex">
                             {restaurant.tables.map((table: any) =>
