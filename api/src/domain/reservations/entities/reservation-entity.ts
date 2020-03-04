@@ -7,7 +7,6 @@ export interface IReservation extends Document {
     seats: number;
     restaurantName?: string;
     tableName?: string;
-    canceledAt: Date;
     when: string;
 }
 const ReservationSchema: Schema = new Schema({
@@ -15,8 +14,9 @@ const ReservationSchema: Schema = new Schema({
     tableGuid: { type: String, required: true },
     restaurantGuid: { type: String, required: true },
     seats: {type: Number, required: true },
-    when: { type: Date, required: true, unique: true },
-    canceledAt: { type: Date },
+    when: { type: Date, required: true }
 });
+
+ReservationSchema.index({ when: 1, restaurantGuid: 1, tableGuid: 1}, { unique: true });
 
 export default mongoose.model<IReservation>('Reservation', ReservationSchema);
