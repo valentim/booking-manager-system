@@ -75,12 +75,6 @@ export class ReservationList extends Component<ReservationListProps, Reservation
     render() {
         const reservations = this.state.reservations;
 
-        if (reservations.length < 1) {
-            return (
-                <h2 className="d-flex justify-content-center">There is no reservation for this restaurant yet</h2>
-            )
-        }
-
         return(
             <Container>
                 <GenericModal ref={this.genericModal} redirect={this.state.redirect} message={this.state.message} status={this.state.status} />

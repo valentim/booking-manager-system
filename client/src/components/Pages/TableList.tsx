@@ -39,12 +39,6 @@ export class TableList extends Component<TableListProps, TableListStates> {
     render() {
         const tables = this.state.tables;
 
-        if (tables.length < 1) {
-            return (
-                <h2>There is no tables registered for this restaurant yet</h2>
-            )
-        }
-
         return(
             <Container>
                 <nav>

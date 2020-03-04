@@ -64,5 +64,5 @@ In short:
 
 
 ## Live demo
-Soon
+View [example](http://ec2-52-205-252-32.compute-1.amazonaws.com:3000/)
 

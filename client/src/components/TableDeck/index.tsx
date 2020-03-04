@@ -40,12 +40,6 @@ export class TableDeck extends Component<TableDeckProps, TableDeckState> {
     render() {
         const restaurants = this.state.restaurants;
 
-        if (restaurants.length < 1) {
-            return (
-                <h2 className="d-flex justify-content-center">There is no restaurant registered yet</h2>
-            )
-        }
-
         return(
             <Container>
                 {restaurants.map((restaurant: any) =>

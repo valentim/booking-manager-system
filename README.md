@@ -19,6 +19,10 @@ In short, the Client is a ReactJS project written with Typescript. To learn more
 
 ## Approaches
 1 - The comments are done based on [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
+2 - Gitflow
+
+## Live Demo
+View [example](http://ec2-52-205-252-32.compute-1.amazonaws.com:3000/)
 
 ## License
 
