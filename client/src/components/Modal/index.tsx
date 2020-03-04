@@ -1,15 +1,18 @@
 import React, { Component } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from 'react-bootstrap/Modal';
+import { Redirect } from "react-router-dom";
 
 type ModalProps = {
     message: string,
     status: string,
-    onWaitingQueue?: any
+    onWaitingQueue?: any,
+    redirect?: string
 };
 
 type ModalStates = {
-    showModal: boolean
+    showModal: boolean,
+    closed: boolean
 }
 
 export class GenericModal extends Component<ModalProps, ModalStates> {
@@ -17,7 +20,8 @@ export class GenericModal extends Component<ModalProps, ModalStates> {
         super(props);
 
         this.state = {
-            showModal: false
+            showModal: false,
+            closed: false
         };
 
         this.openModal = this.openModal.bind(this);
@@ -30,16 +34,30 @@ export class GenericModal extends Component<ModalProps, ModalStates> {
     }
 
     public closeModal() {
-        this.setState({ showModal: false });
+        this.setStateWhenSuccess();
     }
 
     public addWaitingList() {
-        this.setState({ showModal: false });
+        this.setStateWhenSuccess();
         this.props.onWaitingQueue();
+    }
+
+    private setStateWhenSuccess() {
+        const states = { showModal: false, closed: false };
+        if (this.props.status === 'success') {
+            states.closed = true;
+        }
+        
+        this.setState(states);
     }
 
     render() {
         const headerClass = this.props.status === 'success' ? 'alert-success': 'alert-danger';
+
+        if (this.props.redirect && this.state.closed && this.props.status === 'success') {
+            return <Redirect to={this.props.redirect} />
+        }
+
         return(
             <Modal show={this.state.showModal} onHide={this.closeModal}>
                 <Modal.Header className={headerClass} closeButton>

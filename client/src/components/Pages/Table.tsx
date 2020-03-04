@@ -16,12 +16,14 @@ type TableStates = {
     positionName: string,
     maxSeats: string,
     showModal: boolean,
-    response: ResponseData
+    response: ResponseData,
+    redirect: string
 };
 
 type TableProps = {
     restaurantGuid: string,
-    tableGuid?: string
+    tableGuid?: string,
+    bookingApi: BookingApi
 };
 
 export class Table extends Component<TableProps, TableStates> {
@@ -34,6 +36,7 @@ export class Table extends Component<TableProps, TableStates> {
             positionName: '',
             maxSeats: '0',
             showModal: false,
+            redirect: `/restaurants/${this.props.restaurantGuid}/list-tables`,
             response: {
                 message: '',
                 data: '',
@@ -53,10 +56,9 @@ export class Table extends Component<TableProps, TableStates> {
     }
 
     private getTable() {
-        const bookingApi = new BookingApi('');
         if (this.props.tableGuid) {
 
-            bookingApi.getTable(this.props.restaurantGuid, this.props.tableGuid).then(result => {
+            this.props.bookingApi.getTable(this.props.restaurantGuid, this.props.tableGuid).then(result => {
                 result.json().then((response) => {
                     this.setState({
                         maxSeats: response.data.maxSeats,
@@ -78,14 +80,13 @@ export class Table extends Component<TableProps, TableStates> {
     }
 
     private saveTable(event: any) {
-        const bookingApi = new BookingApi('');
         const defaultResponse = {
             message: 'Restaurant registered with success',
             status: 'success'
         }
 
         if (this.props.tableGuid) {
-            bookingApi.updateTable(this.state.positionName, Number(this.state.maxSeats), this.props.restaurantGuid, this.props.tableGuid).then(result => {
+            this.props.bookingApi.updateTable(this.state.positionName, Number(this.state.maxSeats), this.props.restaurantGuid, this.props.tableGuid).then(result => {
                 result.json().then(response => {
                     let newResponse = defaultResponse;
                     newResponse.message = 'Table updated with success!';
@@ -104,7 +105,7 @@ export class Table extends Component<TableProps, TableStates> {
                 this.genericModal.current?.openModal();
             });
         } else {
-            bookingApi.addTable(this.state.positionName, Number(this.state.maxSeats), this.props.restaurantGuid).then(result => {
+            this.props.bookingApi.addTable(this.state.positionName, Number(this.state.maxSeats), this.props.restaurantGuid).then(result => {
                 result.json().then(response => {
 
                     let newResponse = defaultResponse;
@@ -116,7 +117,7 @@ export class Table extends Component<TableProps, TableStates> {
 
                     this.setState({ showModal: true, response: newResponse });
                 });
-            }).catch(err => {
+            }).catch((err: any) => {
                 defaultResponse.status = 'error';
                 defaultResponse.message = err;
                 this.setState({ showModal: true, response: defaultResponse });
@@ -153,7 +154,7 @@ export class Table extends Component<TableProps, TableStates> {
                     }
                 </nav>
                 <Form onSubmit={this.saveTable}>
-                    <GenericModal ref={this.genericModal} message={this.state.response.message} status={this.state.response.status} />
+                    <GenericModal ref={this.genericModal} redirect={this.state.redirect} message={this.state.response.message} status={this.state.response.status} />
                     <Form.Group controlId="positionName">
                         <Form.Label>Table position name</Form.Label>
                         <Form.Control value={this.state.positionName} onChange={this.handleDataChange} placeholder="Table positoin name" required />

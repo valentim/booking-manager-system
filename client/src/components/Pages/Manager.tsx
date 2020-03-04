@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { BrowserRouter, NavLink, Switch, Route } from 'react-router-dom';
-// import { BookingApi } from "../../services/booking/BookingApi";
+import { BookingApi } from "../../services/booking/BookingApi";
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -16,9 +16,13 @@ type ManagerState = {
     isDefaultActive: boolean
 };
 
-export class Manager extends Component<{}, ManagerState> {
+type ManagerProps = {
+    bookingApi: BookingApi
+}
 
-    constructor(props: any) {
+export class Manager extends Component<ManagerProps, ManagerState> {
+
+    constructor(props: ManagerProps) {
         super(props);
         
         this.state = {
@@ -30,7 +34,7 @@ export class Manager extends Component<{}, ManagerState> {
         this.setState({ isDefaultActive: isActive });
     }
 
-    render() {        
+    render() {
         return(
             <BrowserRouter>
                 <Container>
@@ -43,35 +47,41 @@ export class Manager extends Component<{}, ManagerState> {
                         </Col>
                         <Col sm={10}>
                             <Switch>
-                                <Route path={["/list-restaurants", "/manager"]} component={RestaurantList} />
-                                <Route path="/add-restaurants" component={Restaurant} />
+                                <Route path={["/list-restaurants", "/manager"]} render={props => {
+                                            return <RestaurantList bookingApi={this.props.bookingApi} />;
+                                        }}
+                                />
+                                <Route path="/add-restaurants" render={props => {
+                                            return <Restaurant bookingApi={this.props.bookingApi} />;
+                                        }}
+                                />
                                 <Route path="/restaurants/:restaurantGuid/list-tables"
                                         render={props => {
-                                            return <TableList restaurantGuid={props.match.params.restaurantGuid} />;
+                                            return <TableList bookingApi={this.props.bookingApi} restaurantGuid={props.match.params.restaurantGuid} />;
                                         }}
                                 />
 
                                 <Route path="/restaurants/:restaurantGuid/tables/:tableGuid/reservations/:reservationGuid"
                                         render={props => {
-                                            return <Reservation reservationGuid={props.match.params.reservationGuid} restaurantGuid={props.match.params.restaurantGuid} tableGuid={props.match.params.tableGuid} />;
+                                            return <Reservation bookingApi={this.props.bookingApi} reservationGuid={props.match.params.reservationGuid} restaurantGuid={props.match.params.restaurantGuid} tableGuid={props.match.params.tableGuid} />;
                                         }}
                                 />
 
                                 <Route path="/restaurants/:restaurantGuid/tables/:tableGuid/reservations"
                                         render={props => {
-                                            return <ReservationList restaurantGuid={props.match.params.restaurantGuid} tableGuid={props.match.params.tableGuid} />;
+                                            return <ReservationList bookingApi={this.props.bookingApi} restaurantGuid={props.match.params.restaurantGuid} tableGuid={props.match.params.tableGuid} />;
                                         }}
                                 />
 
                                 <Route path="/restaurants/:restaurantGuid/add-table"
                                         render={props => {
-                                            return <Table restaurantGuid={props.match.params.restaurantGuid} />;
+                                            return <Table bookingApi={this.props.bookingApi} restaurantGuid={props.match.params.restaurantGuid} />;
                                         }}
                                 />
 
                                 <Route path="/restaurants/:restaurantGuid/tables/:tableGuid"
                                         render={props => {
-                                            return <Table restaurantGuid={props.match.params.restaurantGuid} tableGuid={props.match.params.tableGuid} />;
+                                            return <Table bookingApi={this.props.bookingApi} restaurantGuid={props.match.params.restaurantGuid} tableGuid={props.match.params.tableGuid} />;
                                         }}
                                 />
 

@@ -5,12 +5,16 @@ import Container from "react-bootstrap/Container";
 import CardDeck from 'react-bootstrap/CardDeck';
 import Badge from 'react-bootstrap/Badge';
 
-type SliderState = {
+type TableDeckState = {
     restaurants: any[]
 };
 
-export class TableDeck extends Component<{}, SliderState> {
-    constructor(props: any) {
+type TableDeckProps = {
+    bookingApi: BookingApi
+}
+
+export class TableDeck extends Component<TableDeckProps, TableDeckState> {
+    constructor(props: TableDeckProps) {
         super(props);
 
         this.state = {
@@ -24,8 +28,7 @@ export class TableDeck extends Component<{}, SliderState> {
   
   
     private getRestaurants() {
-        const bookingApi = new BookingApi('');
-        bookingApi.listRestaurants().then(response => {
+        this.props.bookingApi.listRestaurants().then(response => {
             response.json().then(data => {
                 const restaurantsData = data.data.sort((a: any, b:any) => b.tables.length - a.tables.length);
                 this.setState({ restaurants: restaurantsData });
@@ -36,6 +39,13 @@ export class TableDeck extends Component<{}, SliderState> {
 
     render() {
         const restaurants = this.state.restaurants;
+
+        if (restaurants.length < 1) {
+            return (
+                <h2 className="d-flex justify-content-center">There is no restaurant registered yet</h2>
+            )
+        }
+
         return(
             <Container>
                 {restaurants.map((restaurant: any) =>

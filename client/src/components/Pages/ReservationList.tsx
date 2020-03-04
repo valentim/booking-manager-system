@@ -11,12 +11,14 @@ type ReservationListStates = {
     reservations: any[],
     message: string,
     status: string,
-    showModal: boolean
+    showModal: boolean,
+    redirect: string
 }
 
 type ReservationListProps = {
     restaurantGuid: string,
-    tableGuid: string
+    tableGuid: string,
+    bookingApi: BookingApi
 };
 
 export class ReservationList extends Component<ReservationListProps, ReservationListStates> {
@@ -29,7 +31,8 @@ export class ReservationList extends Component<ReservationListProps, Reservation
             reservations: [],
             message: 'Reservation was canceled with success!',
             status: 'success',
-            showModal: false
+            showModal: false,
+            redirect: `/restaurants/${this.props.restaurantGuid}/list-tables`
         };
 
         this.genericModal = React.createRef();
@@ -41,8 +44,7 @@ export class ReservationList extends Component<ReservationListProps, Reservation
     }
 
     private getReservations() {
-        const bookingApi = new BookingApi('');
-        bookingApi.listReservations(this.props.restaurantGuid, this.props.tableGuid).then(response => {
+        this.props.bookingApi.listReservations(this.props.restaurantGuid, this.props.tableGuid).then(response => {
             response.json().then(data => {
                 this.setState({ reservations: data.data });
             });
@@ -50,8 +52,7 @@ export class ReservationList extends Component<ReservationListProps, Reservation
     }
 
     private cancelReservation(e: any, reservationGuid: string) {
-        const bookingApi = new BookingApi('');
-        bookingApi.cancelReservation(this.props.restaurantGuid, this.props.tableGuid, reservationGuid).then(response => {
+        this.props.bookingApi.cancelReservation(this.props.restaurantGuid, this.props.tableGuid, reservationGuid).then(response => {
             let message = this.state.message;
             let status = this.state.status;
 
@@ -67,7 +68,6 @@ export class ReservationList extends Component<ReservationListProps, Reservation
             this.genericModal.current?.openModal();
         });
 
-
         e.preventDefault();
 
     }
@@ -75,9 +75,15 @@ export class ReservationList extends Component<ReservationListProps, Reservation
     render() {
         const reservations = this.state.reservations;
 
+        if (reservations.length < 1) {
+            return (
+                <h2 className="d-flex justify-content-center">There is no reservation for this restaurant yet</h2>
+            )
+        }
+
         return(
             <Container>
-                <GenericModal ref={this.genericModal} message={this.state.message} status={this.state.status} />
+                <GenericModal ref={this.genericModal} redirect={this.state.redirect} message={this.state.message} status={this.state.status} />
                 <nav>
                     <ol className="breadcrumb">
                         <li className="breadcrumb-item">
@@ -93,7 +99,8 @@ export class ReservationList extends Component<ReservationListProps, Reservation
                         <tr>
                         <th>Reservation code</th>
                         <th>Date</th>
-                        <th>Actions</th>
+                        <th>User</th>
+                        <th className="actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -103,11 +110,12 @@ export class ReservationList extends Component<ReservationListProps, Reservation
                             return(<tr key={reservation.reservationCode}>
                                 <td>{reservation.reservationCode}</td>
                                 <td>{date.format('YYYY-MM-DD')} at {date.format('hh:mm A')}</td>
+                                <td>{reservation.user}</td>
                                 <td>
                                     <Nav>
                                         <Nav.Item>
-                                            <Link className="btn btn-outline-primary" to={`/restaurants/${this.props.restaurantGuid}/tables/${this.props.tableGuid}/reservations/${reservation.reservationCode}`}>Edit reservation</Link>
-                                            <Link className="btn btn-outline-primary" to="/" onClick={(e) => this.cancelReservation(e, reservation.reservationCode)}>Cancel reservation</Link>
+                                            <Link className="btn btn-outline-primary" to={`/restaurants/${this.props.restaurantGuid}/tables/${this.props.tableGuid}/reservations/${reservation.reservationCode}`}>Edit</Link>
+                                            <Link className="btn btn-outline-primary" to="/" onClick={(e) => this.cancelReservation(e, reservation.reservationCode)}>Cancel</Link>
                                         </Nav.Item>
                                     </Nav>
                                 </td>

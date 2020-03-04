@@ -52,7 +52,7 @@ export class TableCard extends Component<TableCardProps, {}> {
                         <Card.Title><Badge variant="warning" className="d-flex justify-content-center">unavailable</Badge></Card.Title>
                         <Nav>
                             <Nav.Item className="btn-block">
-                                <Link className="btn btn-outline-primary btn-block" to={`/restaurants/${this.props.restaurantGuid}/tables/${this.props.guid}/add-reservation`}>Waiting queue</Link>
+                                <Link className="btn btn-outline-primary btn-block" to={`/restaurants/${this.props.restaurantGuid}/tables/${this.props.guid}/waiting-queue`}>Waiting queue</Link>
                             </Nav.Item>
                         </Nav>
                     </Card.Body>

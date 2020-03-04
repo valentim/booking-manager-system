@@ -5,12 +5,16 @@ import { Link } from 'react-router-dom';
 import Nav from "react-bootstrap/Nav";
 
 type RestaurantListStates = {
-    restaurants: any[],
+    restaurants: any[]
 }
 
-export class RestaurantList extends Component<{}, RestaurantListStates> {
+type RestaurantListProps = {
+    bookingApi: BookingApi
+}
 
-    constructor(props: any) {
+export class RestaurantList extends Component<RestaurantListProps, RestaurantListStates> {
+
+    constructor(props: RestaurantListProps) {
         super(props);
 
         this.state = {
@@ -23,8 +27,7 @@ export class RestaurantList extends Component<{}, RestaurantListStates> {
     }
   
     public getRestaurants() {
-        const bookingApi = new BookingApi('');
-        bookingApi.listRestaurants().then(response => {
+        this.props.bookingApi.listRestaurants().then(response => {
             response.json().then(data => {
                 this.setState({ restaurants: data.data });
             });
@@ -33,6 +36,12 @@ export class RestaurantList extends Component<{}, RestaurantListStates> {
 
     render() {
         const restaurants = this.state.restaurants;
+
+        if (restaurants.length < 1) {
+            return (
+                <h2 className="d-flex justify-content-center">There is no restaurant registered yet</h2>
+            )
+        }
 
         return(
             <Table responsive striped bordered hover>
