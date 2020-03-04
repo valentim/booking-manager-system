@@ -37,12 +37,6 @@ export class RestaurantList extends Component<RestaurantListProps, RestaurantLis
     render() {
         const restaurants = this.state.restaurants;
 
-        if (restaurants.length < 1) {
-            return (
-                <h2 className="d-flex justify-content-center">There is no restaurant registered yet</h2>
-            )
-        }
-
         return(
             <Table responsive striped bordered hover>
                 <thead>
