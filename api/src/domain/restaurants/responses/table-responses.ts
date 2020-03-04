@@ -2,7 +2,7 @@ import { Context } from 'koa';
 import { ITable } from '../entities/table-entity';
 
 export class TableResponses {
-    public static getSuccessResponse(ctx: Context, table: ITable) {
+    public static getSuccessResponse(ctx: Context, table: ITable, code: number) {
         const response = {
             status: 'success',
             data: {
@@ -13,7 +13,7 @@ export class TableResponses {
         };
 
         ctx.body = response;
-        ctx.status = 201;
+        ctx.status = code;
     }
 
     public static getTablesResponse(ctx: Context, tables: ITable[]) {
