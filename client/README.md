@@ -7,6 +7,9 @@ This client web has the necessary interfaces to display and manage the restauran
 ### Booking
 ![](./examples/booking.png)
 
+### Waiting Queue
+![](./examples/waiting_queue.png) ![](./examples/waiting_queue2.png) ![](./examples/waiting_queue3.png)
+
 ### Reservations
 ![](./examples/reservations.png)
 
