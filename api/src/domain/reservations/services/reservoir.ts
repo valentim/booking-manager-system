@@ -52,7 +52,6 @@ export class Reservoir {
 
         if (reservationInQueue) {
             const newReservation = reservationInQueue as IReservation;
-            // tslint:disable-next-line: no-null-keyword
             this.reservationRepository.save(newReservation as IReservation);
         }
 
@@ -132,7 +131,6 @@ export class Reservoir {
             if (reservationInQueue) {
                 const newReservation = reservationInQueue as IReservation;
                 newReservation.tableGuid = tableGuid;
-                // tslint:disable-next-line: no-null-keyword
                 this.reservationRepository.save(newReservation as IReservation);
             }
         }
@@ -154,11 +152,6 @@ export class Reservoir {
         const opensAt = moment(`${reservationDate} ${restaurant.opensAt}`, 'YYYY-MM-DD HH:mm A');
         const closesAt = moment(`${reservationDate} ${restaurant.closesAt}`, 'YYYY-MM-DD HH:mm A');
 
-        if (closesAt.format('HH:mm A') === '00:00 AM') {
-            closesAt.set({ hours: 24 });
-        }
-
-        console.log(closesAt.format('HH:mm A'), opensAt.format('YYYY-MM-DD HH:mm'), closesAt.format('YYYY-MM-DD HH:mm'), date.format('YYYY-MM-DD HH:mm'));
         if (!date.isBetween(opensAt, closesAt, 'minutes', '[]')) {
             throw { code: 90001 };
         }
