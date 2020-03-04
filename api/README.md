@@ -66,5 +66,5 @@ ACCESS_KEY_ID=
 ```
 
 ## Live demo
-Soon
+View [api](http://ec2-52-205-252-32.compute-1.amazonaws.com:3002/v1/health)
 
