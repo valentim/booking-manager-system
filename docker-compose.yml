@@ -2,8 +2,7 @@ version: '3.7'
 services:
   mongodb:
     image: mongo
-    environment:
-      env_file: ./infra/envs/mongodb.env
+    env_file: ./infra/envs/mongodb.env
     ports:
       - 27017:27017
 
